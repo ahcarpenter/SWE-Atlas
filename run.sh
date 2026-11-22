@@ -24,14 +24,20 @@ if [ -z "$lane" ]; then
   done
 fi
 
-[ -f .env ] || { echo "no .env: cp .env.example .env and fill it in" >&2; exit 1; }
-set -a; . ./.env; set +a
+# Keys come from .env when there is one, else from the environment (a Claude Code cloud
+# environment sets them as variables; see CLOUD.md).
+env_file=""
+if [ -f .env ]; then
+  set -a; . ./.env; set +a
+  env_file=.env
+fi
 [ -n "${JUDGE_API_KEY:-${OPENAI_API_KEY:-}}" ] && [ -n "${JUDGE_BASE_URL:-${OPENAI_API_BASE:-}}" ] || {
-  echo "judge not set: OPENAI_API_KEY and OPENAI_API_BASE (or JUDGE_API_KEY and JUDGE_BASE_URL) in .env" >&2
+  echo "judge not set: OPENAI_API_KEY and OPENAI_API_BASE (or JUDGE_API_KEY and JUDGE_BASE_URL)" \
+    "in .env (cp .env.example .env) or in the environment" >&2
   exit 1
 }
 
 # With a lane, -p data/<lane> replaces the config's datasets and lets -i/-x/-l filter tasks.
 # The job name is the config name, the lane (if any) and a timestamp.
 name="$(basename "$config" .yaml)${lane:+-$lane}-$(date +%Y%m%d-%H%M%S)"
-exec harbor run -c "$config" ${lane:+-p "data/$lane"} --env-file .env -y --job-name "$name" "$@"
+exec harbor run -c "$config" ${lane:+-p "data/$lane"} ${env_file:+--env-file "$env_file"} -y --job-name "$name" "$@"

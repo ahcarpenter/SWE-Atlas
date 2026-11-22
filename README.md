@@ -94,6 +94,10 @@ with (harness, version, reasoning effort, web tools off, 3 attempts per task):
   (`harbor agent schema <name>` lists an agent's options), and run it with
   `./run.sh configs/my-model.yaml`.
 - **Run shape.** `n_attempts` (pass@k), `n_concurrent_trials` and `retry` are set per config.
+- **Skills pack.** `configs/claude-opus-5-5-skills-pack.yaml` gives the agent the
+  addyosmani/agent-skills pack in `.agents/skills`; `configs/claude-opus-5-5-skills-baseline.yaml`
+  is the same run without it. [CLOUD.md](CLOUD.md) covers them and running from a Claude Code
+  cloud session.
 
 ## 5. Results
 
